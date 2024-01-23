@@ -534,8 +534,8 @@ class HSGPPeriodic(Base):
             X = np.linspace(0, 10, 100)[:, None]
 
             with pm.Model() as model:
-                scale = pm.HalfNormal(10)
-                cov_func = pm.gp.cov.Periodic(1, period=1, ls=ell)
+                scale = pm.HalfNormal("scale", 10)
+                cov_func = pm.gp.cov.Periodic(1, period=1.0, ls=2.0)
 
                 # m=200 means 200 basis vectors
                 gp = pm.gp.HSGPPeriodic(m=200, scale=scale, cov_func=cov_func)
