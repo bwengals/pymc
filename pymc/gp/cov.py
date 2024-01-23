@@ -27,8 +27,6 @@ from pytensor.graph.basic import Variable
 from pytensor.tensor.sharedvar import TensorSharedVariable
 from pytensor.tensor.variable import TensorConstant, TensorVariable
 
-from pymc.exceptions import NotConstantValueError
-
 __all__ = [
     "Constant",
     "WhiteNoise",
@@ -187,24 +185,15 @@ class Covariance(BaseCovariance):
     def _slice(self, X, Xs=None):
         xdims = X.shape[-1]
         if isinstance(xdims, Variable):
-            try:
-                # For the HSGP.prior_linearized use case, it's OK if X is not constant.
-                [xdims] = constant_fold([xdims], raise_not_constant=True)
-
-            except NotConstantValueError:
-                # Raised when HSGP.prior_linearized X values are mutated for prediction.
-                pass
-
-            else:
-                if self.input_dim != xdims:
-                    warnings.warn(
-                        f"Only {self.input_dim} column(s) out of {xdims} are"
-                        " being used to compute the covariance function. If this"
-                        " is not intended, increase 'input_dim' parameter to"
-                        " the number of columns to use. Ignore otherwise.",
-                        UserWarning,
-                    )
-
+            [xdims] = constant_fold([xdims], raise_not_constant=False)
+        if self.input_dim != xdims:
+            warnings.warn(
+                f"Only {self.input_dim} column(s) out of {xdims} are"
+                " being used to compute the covariance function. If this"
+                " is not intended, increase 'input_dim' parameter to"
+                " the number of columns to use. Ignore otherwise.",
+                UserWarning,
+            )
         X = pt.as_tensor_variable(X[:, self.active_dims])
         if Xs is not None:
             Xs = pt.as_tensor_variable(Xs[:, self.active_dims])
