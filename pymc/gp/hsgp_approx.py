@@ -445,7 +445,7 @@ class HSGPPeriodic(Base):
 
         with pm.Model() as model:
             # Specify the covariance function, only for the 1-D case
-            scale = pm.HalfNormal(10)
+            scale = pm.HalfNormal("scale", 10)
             cov_func = pm.gp.cov.Periodic(1, period=1, ls=0.1)
 
             # Specify the approximation with 25 basis vectors
